@@ -22,7 +22,7 @@ You can have as many widgets as you like!
 
 You can copy and paste between the StreamElements environment and here for best results.
 
-You _can_ use `{{variables}}` in your html and css!
+You _can_ use `{{variables}}` in your html, css and js!
 
 ### start
 

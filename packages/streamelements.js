@@ -6,9 +6,7 @@ const widget = config.widgets.includes(hash) ? hash : config.widgets[0];
 const widgetDir = `/widgets/${widget}`;
 
 const replaceVariables = (text) => {
-  return text.replace(/\{\{([A-Za-z]\w+)\}\}/gi, (match, p1) => {
-    return fieldData[p1];
-  });
+  return Handlebars.compile(text)(fieldData);
 };
 
 const getFields = async () => {
