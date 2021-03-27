@@ -1,13 +1,13 @@
-let field;
-let data;
+let fields;
+let fieldData;
 
 const hash = window.location.hash.substring(1);
 const widget = config.widgets.includes(hash) ? hash : config.widgets[0];
-const widgetDir = `../widgets/${widget}`;
+const widgetDir = `/widgets/${widget}`;
 
 const replaceVariables = (text) => {
   return text.replace(/\{\{([A-Za-z]\w+)\}\}/gi, (match, p1) => {
-    return fields[p1].value;
+    return fieldData[p1];
   });
 };
 
@@ -26,17 +26,11 @@ const getData = async () => {
     credentials: "same-origin",
   })
     .then((response) => response.json())
-    .then((res) => (data = res));
+    .then((res) => (fieldData = res));
 };
 
-const updateFields = () => {
-  Object.keys(data).forEach((datum) => {
-    fields[datum].value = data[datum];
-  });
-};
-
-const insertHTML = () => {
-  fetch(`${widgetDir}/widget.html`, {
+const insertHTML = async () => {
+  return await fetch(`${widgetDir}/widget.html`, {
     method: "GET",
     credentials: "same-origin",
   })
@@ -45,13 +39,13 @@ const insertHTML = () => {
       const html = replaceVariables(res);
       const body = document.body || document.getElementsByTagName("body")[0];
       const currentWidget = document.createElement("div");
-      body.append(currentWidget);
       currentWidget.innerHTML = html;
+      body.append(currentWidget);
     });
 };
 
-insertCSS = () => {
-  fetch(`${widgetDir}/widget.css`, {
+const insertCSS = async () => {
+  return await fetch(`${widgetDir}/widget.css`, {
     method: "GET",
     credentials: "same-origin",
   })
@@ -65,20 +59,35 @@ insertCSS = () => {
     });
 };
 
-insertJS = () => {
-  const head = document.head || document.getElementsByTagName("head")[0];
-  const script = document.createElement("script");
-  head.appendChild(script);
-  script.src = `${widgetDir}/widget.js`;
+const loadWidget = () => {
+  const event = new CustomEvent("onWidgetLoad", {
+    detail: { fieldData, recents: [] },
+  });
+  return dispatchEvent(event);
+};
+
+const insertJS = async () => {
+  return await fetch(`${widgetDir}/widget.js`, {
+    method: "GET",
+    credentials: "same-origin",
+  })
+    .then((response) => response.text())
+    .then((res) => {
+      const js = replaceVariables(res);
+      const head = document.head || document.getElementsByTagName("head")[0];
+      const script = document.createElement("script");
+      script.innerHTML = js;
+      head.appendChild(script);
+      loadWidget();
+    });
 };
 
 const init = async () => {
   await getFields();
   await getData();
-  updateFields();
-  insertHTML();
-  insertCSS();
-  insertJS();
+  await insertHTML();
+  await insertCSS();
+  await insertJS();
 };
 
 init();
