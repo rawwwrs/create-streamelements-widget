@@ -82,7 +82,6 @@ window.addEventListener("onEventReceived", function (obj) {
 });
 
 window.addEventListener("onWidgetLoad", function (obj) {
-  console.log("PUPPIES");
   let recents = obj.detail.recents;
   recents.sort(function (a, b) {
     return Date.parse(a.createdAt) - Date.parse(b.createdAt);
