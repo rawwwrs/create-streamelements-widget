@@ -5,6 +5,10 @@ const hash = window.location.hash.substring(1);
 const widget = config.widgets.includes(hash) ? hash : config.widgets[0];
 const widgetDir = `/widgets/${widget}`;
 
+const handleErrors = (error) => {
+  console.warn(error);
+};
+
 const replaceVariables = (text) => {
   return Handlebars.compile(text)(fieldData);
 };
@@ -15,7 +19,8 @@ const getFields = async () => {
     credentials: "same-origin",
   })
     .then((response) => response.json())
-    .then((res) => (fields = res));
+    .then((res) => (fields = res))
+    .catch(handleErrors);
 };
 
 const getData = async () => {
@@ -24,7 +29,8 @@ const getData = async () => {
     credentials: "same-origin",
   })
     .then((response) => response.json())
-    .then((res) => (fieldData = res));
+    .then((res) => (fieldData = res))
+    .catch(handleErrors);
 };
 
 const insertHTML = async () => {
@@ -39,7 +45,8 @@ const insertHTML = async () => {
       const currentWidget = document.createElement("div");
       currentWidget.innerHTML = html;
       body.append(currentWidget);
-    });
+    })
+    .catch(handleErrors);
 };
 
 const insertCSS = async () => {
@@ -54,7 +61,8 @@ const insertCSS = async () => {
       const style = document.createElement("style");
       head.appendChild(style);
       style.innerHTML = css;
-    });
+    })
+    .catch(handleErrors);
 };
 
 const loadWidget = () => {
@@ -77,7 +85,8 @@ const insertJS = async () => {
       script.innerHTML = js;
       head.appendChild(script);
       loadWidget();
-    });
+    })
+    .catch(handleErrors);
 };
 
 const init = async () => {
